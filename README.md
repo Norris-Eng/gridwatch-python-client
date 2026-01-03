@@ -1,7 +1,6 @@
 # GridWatch Python Client (Official)
 
 A lightweight, automated "Kill Switch" for Bitcoin miners, datacenters, and homelabbers.
-
 This script monitors real-time US Power Grid telemetry via the [GridWatch API](https://rapidapi.com/cnorris1316/api/gridwatch-us-telemetry) and triggers a curtailment (shutdown) signal when electricity prices spike or grid reliability is at risk.
 
 ## Why use this?
@@ -36,7 +35,7 @@ This script monitors real-time US Power Grid telemetry via the [GridWatch API](h
     pip install -r requirements.txt
     ```
 
-3.  **Configure & Run**
+3.  **Configure & Run (Basic Mode)**
     Open `gridwatch_kill_switch.py` and set your thresholds:
     ```python
     RAPIDAPI_KEY = "YOUR_KEY_HERE"
@@ -48,11 +47,21 @@ This script monitors real-time US Power Grid telemetry via the [GridWatch API](h
     python gridwatch_kill_switch.py
     ```
 
+## Enterprise Integrations
+Running a commercial farm? We have pre-built integrations for major management platforms.
+
+* **Foreman Users:** [`integrations/foreman_trigger.py`](integrations/foreman_trigger.py)
+    * *Native integration that triggers a "Pause" event via the Foreman API.*
+* **HiveOS Users:** [`integrations/hiveos_trigger.py`](integrations/hiveos_trigger.py)
+    * *Triggers a Flight Sheet change or Miner Stop command via HiveOS API.*
+
 ## Customization
-The script includes a `stop_mining_rigs()` function. You can modify this function to:
+The basic script includes a `stop_mining_rigs()` function.
+You can modify this function to:
 * Trigger a Tasmota/Shelly smart plug via HTTP.
 * Send a shutdown command via SSH to your mining management node (Foreman, Awesome Miner, etc.).
 * Send a webhook to Home Assistant.
 
 ## License
-MIT License. Feel free to fork and modify for your specific facility needs.
+MIT License.
+Feel free to fork and modify for your specific facility needs.
