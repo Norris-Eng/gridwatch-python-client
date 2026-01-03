@@ -19,13 +19,35 @@ SIMULATION_MODE = True
 
 def stop_mining_rigs():
     """
-    Place your specific shutdown logic here.
-    Examples:
-    - Call a smart plug API (Kasa/Shelly)
-    - SSH into a management node
-    - Execute a local shell command
+    Executes shutdown logic for HiveOS.
     """
-    print("   [ACTION] 🛑 SENDING SHUTDOWN SIGNAL TO RIGS...")
+    print(f"   [ACTION] 🛑 SENDING SHUTDOWN SIGNAL TO RIGS...")
+
+    # --- HIVEOS CONFIGURATION ---
+    HIVE_ENABLED = False  # Set to True to enable
+    HIVE_TOKEN = "YOUR_HIVE_API_TOKEN"
+    HIVE_FARM_ID = 123456
+    HIVE_WORKER_IDS = [112233, 445566] # List of IDs to stop
+
+    # 1. HIVEOS SHUTDOWN
+    if HIVE_ENABLED:
+        try:
+            url = f"https://api2.hiveos.farm/api/v2/farms/{HIVE_FARM_ID}/workers/command"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {HIVE_TOKEN}"
+            }
+            payload = {
+                "worker_ids": HIVE_WORKER_IDS,
+                "data": {
+                    "command": "miner",
+                    "data": { "action": "stop" }
+                }
+            }
+            requests.post(url, json=payload, headers=headers, timeout=5)
+            print("      -> HiveOS: Stop command sent.")
+        except Exception as e:
+            print(f"      -> HiveOS Error: {e}")
 
 def check_grid_status():
     url = "https://gridwatch-us-telemetry.p.rapidapi.com/api/curtailment"

@@ -19,13 +19,27 @@ SIMULATION_MODE = True
 
 def stop_mining_rigs():
     """
-    Place your specific shutdown logic here.
-    Examples:
-    - Call a smart plug API (Kasa/Shelly)
-    - SSH into a management node
-    - Execute a local shell command
+    Executes shutdown logic for Foreman.
     """
-    print("   [ACTION] 🛑 SENDING SHUTDOWN SIGNAL TO RIGS...")
+    print(f"   [ACTION] 🛑 SENDING SHUTDOWN SIGNAL TO RIGS...")
+
+    # --- FOREMAN CONFIGURATION ---
+    FOREMAN_ENABLED = False # Set to True to enable
+    FOREMAN_API_TOKEN = "YOUR_FOREMAN_TOKEN"
+    FOREMAN_CLIENT_ID = "YOUR_CLIENT_ID"
+
+    # FOREMAN SHUTDOWN (Enterprise API Example)
+    if FOREMAN_ENABLED:
+        # Note: Check Foreman API docs for your specific version/endpoint
+        try:
+            url = "https://api.foreman.mn/api/v2/miners/command"
+            headers = {"Authorization": f"Token {FOREMAN_API_TOKEN}"}
+            # Payload structure varies by Foreman version; adjust as needed
+            payload = {"command": "stop", "miner_ids": [123, 456]}
+            requests.post(url, json=payload, headers=headers)
+            print("      -> Foreman: Command sent.")
+        except Exception as e:
+            print(f"      -> Foreman Error: {e}")
 
 def check_grid_status():
     url = "https://gridwatch-us-telemetry.p.rapidapi.com/api/curtailment"
