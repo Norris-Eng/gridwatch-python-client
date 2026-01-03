@@ -24,9 +24,8 @@ def stop_mining_rigs():
     print(f"   [ACTION] 🛑 SENDING SHUTDOWN SIGNAL TO RIGS...")
 
     # --- FOREMAN CONFIGURATION ---
-    FOREMAN_ENABLED = False # Set to True to enable
+    FOREMAN_ENABLED = True # Set to False to disable
     FOREMAN_API_TOKEN = "YOUR_FOREMAN_TOKEN"
-    FOREMAN_CLIENT_ID = "YOUR_CLIENT_ID"
 
     # FOREMAN SHUTDOWN (Enterprise API Example)
     if FOREMAN_ENABLED:

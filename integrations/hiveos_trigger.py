@@ -24,7 +24,7 @@ def stop_mining_rigs():
     print(f"   [ACTION] 🛑 SENDING SHUTDOWN SIGNAL TO RIGS...")
 
     # --- HIVEOS CONFIGURATION ---
-    HIVE_ENABLED = False  # Set to True to enable
+    HIVE_ENABLED = True  # Set to False to disable
     HIVE_TOKEN = "YOUR_HIVE_API_TOKEN"
     HIVE_FARM_ID = 123456
     HIVE_WORKER_IDS = [112233, 445566] # List of IDs to stop
