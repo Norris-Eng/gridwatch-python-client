@@ -1,67 +1,113 @@
-# GridWatch Python Client (Official)
+# GridWatch Python Client (v1.1)
 
-A lightweight, automated "Kill Switch" for Bitcoin miners, datacenters, and homelabbers.
-This script monitors real-time US Power Grid telemetry via the [GridWatch API](https://rapidapi.com/cnorris1316/api/gridwatch-us-telemetry) and triggers a curtailment (shutdown) signal when electricity prices spike or grid reliability is at risk.
+![Version](https://img.shields.io/badge/version-1.1-brightgreen)
+![Python](https://img.shields.io/badge/python-3.9+-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-## Why use this?
-* **Save Money:** Automatically pause high-wattage equipment when wholesale (LMP) prices exceed your profitability threshold (e.g., > $200/MWh).
-* **Prevent Blackouts:** Reduce load during critical "Grid Stress" events (like Winter Storms) to support grid stability.
-* **Redundancy:** Acts as a cloud-based backup watchdog if your local facility sensors fail.
+A robust, autonomous grid logic controller for **Bitcoin Mining, HPC (High-Performance Computing), and Flexible Industrial Loads.**
 
-## Supported Regions
-### Real-Time ISOs (5-min updates)
-* **PJM** (Mid-Atlantic)
-* **ERCOT** (Texas)
-* **MISO** (Midwest)
-* **SPP** (Southwest)
-* **NYISO** (New York)
-* **ISO-NE** (New England)
+This client interfaces with the **GridWatch API** to monitor real-time power grid conditions (LMP Settlements, Stress Index) across US ISOs (ERCOT, PJM, SPP, NYISO, MISO and ISO-NE). It automatically curtails power during volatility and—crucially—**safely restores power** when conditions normalize.
 
-### Regional Utilities (Hourly / EIA Data)
-* **CAISO** (California)
-* **Duke Energy** (Carolinas/Florida)
-* **TVA** (Tennessee Valley)
-* **Southern Company**
-* *Plus 12+ others (FPL, NV Energy, PacifiCorp, etc.)*
+## What's New in v1.1: "Smart Resume"
+* **Auto-Resume (Revenue Recovery):** The script no longer requires human intervention to restart. It detects when pricing returns to safe levels and automatically sends "Resume" commands to your fleet.
+* **15-Minute Hardware Debounce:** To protect Power Supply Units (PSUs) and sensitive compute hardware from rapid cycling (flapping), the grid must remain in a "Normal" state for a defined cooldown period before a restart is authorized.
+* **State Awareness:** The client tracks local state to prevent API spam. It will not send repeated "Stop" commands to a facility that is already curtailed.
 
-## Quick Start
+---
 
-1.  **Get an API Key**
-    You need a RapidAPI Key to fetch live data.
-    [Get a Free API Key Here](https://rapidapi.com/cnorris1316/api/gridwatch-us-telemetry)
+## Key Features
+* **Ultra-Low Latency:** Polls 5-minute settlement intervals with <50ms API response time.
+* **Multi-ISO Support:** Native support for ERCOT, PJM, NYISO, MISO, SPP and ISO-NE.
+* **Agnostic Integration:**
+    * **Foreman / HiveOS:** Native handlers for mining fleet management.
+    * **Webhooks / SSH:** Generic triggers for Building Management Systems (BMS) or custom SCADA.
+    * **Local Shell Scripts:** Direct GPIO/PDU control for homelabs.
 
-2.  **Install Requirements**
-    ```bash
-    pip install -r requirements.txt
-    ```
+---
 
-3.  **Configure & Run (Basic Mode)**
-    Open `gridwatch_kill_switch.py` and set your thresholds:
-    ```python
-    RAPIDAPI_KEY = "YOUR_KEY_HERE"
-    REGION = "ERCOT"
-    PRICE_CAP = 150  # Shut down if price > $150
-    ```
-    Then run the monitor:
-    ```bash
-    python gridwatch_kill_switch.py
-    ```
+## Logic Flow (v1.1)
 
-## Enterprise Integrations
-Running a commercial farm? We have pre-built integrations for major management platforms.
+The client operates on a continuous loop (5-minute polling interval):
 
-* **Foreman Users:** [`integrations/foreman_trigger.py`](integrations/foreman_trigger.py)
-    * *Native integration that triggers a "Pause" event via the Foreman API.*
-* **HiveOS Users:** [`integrations/hiveos_trigger.py`](integrations/hiveos_trigger.py)
-    * *Triggers a Flight Sheet change or Miner Stop command via HiveOS API.*
+1.  **Poll GridWatch API:** Retrieves latest LMP and Grid Stress metrics.
+2.  **Evaluate Thresholds:** Compares current price/stress index against your `PRICE_CAP` and/or `STRESS_CAP`.
+3.  **Action Decision:**
+    * **🔴 CRITICAL EVENT:** If Price > Cap and/or Stress > Cap:
+        * *Action:* Send **STOP** command immediately.
+        * *State:* Mark facility as `CURTAILED`.
+    * **🟢 RECOVERY EVENT:** If Price < Cap and/or Stress < Cap:
+        * *Check:* Has the grid been normal for `COOLDOWN_MINUTES`?
+        * *Action:* If YES, send **START/RESUME** command.
+        * *State:* Mark facility as `RUNNING`.
 
-## Customization
-The basic script includes a `stop_mining_rigs()` function.
-You can modify this function to:
-* Trigger a Tasmota/Shelly smart plug via HTTP.
-* Send a shutdown command via SSH to your mining management node (Foreman, Awesome Miner, etc.).
-* Send a webhook to Home Assistant.
+---
 
-## License
-MIT License.
-Feel free to fork and modify for your specific facility needs.
+## Configuration
+
+This client is designed as a **standalone script** for maximum reliability. You configure it by editing the variables at the top of the `.py` file directly.
+
+### Standard Setup
+Open `gridwatch_kill_switch.py` and edit the **Configuration** section:
+
+```python
+# --- CONFIGURATION ---
+RAPIDAPI_KEY = "YOUR_RAPIDAPI_KEY_HERE"  # Get this from RapidAPI
+REGION = "ERCOT"       # Options: PJM, MISO, ERCOT, SPP, NYISO, ISO-NE
+
+# Safety Thresholds
+PRICE_CAP = 200        # Shut down if price > $200/MWh
+STRESS_CAP = 90        # Shut down if grid stress > 90%
+COOLDOWN_MINUTES = 15  # Minutes grid must be NORMAL before resuming
+```
+
+### Enterprise Integrations
+If you use a management platform, use the specific script found in the `integrations/` folder.
+
+#### 1. Foreman Users
+Use `integrations/foreman_trigger.py`:
+```python
+FOREMAN_ENABLED = True
+FOREMAN_API_TOKEN = "YOUR_FOREMAN_TOKEN"
+FOREMAN_MINER_IDS = [123, 456] # List of Miner IDs to control
+```
+
+#### 2. HiveOS Users
+Use `integrations/hiveos_trigger.py`:
+```python
+HIVE_ENABLED = True
+HIVE_TOKEN = "YOUR_HIVE_API_TOKEN"
+HIVE_FARM_ID = 123456
+HIVE_WORKER_IDS = [112233, 445566]
+```
+
+---
+
+## Installation & Usage
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/Norris-Eng/gridwatch-kill-switch.git](https://github.com/Norris-Eng/gridwatch-kill-switch.git)
+   cd gridwatch-kill-switch
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Configure the script:**
+   Open the script matching your use case (e.g., `gridwatch_kill_switch.py` or `integrations/foreman_trigger.py`) in a text editor and paste your API keys.
+
+4. **Run the client:**
+   ```bash
+   # For generic usage:
+   python gridwatch_kill_switch.py
+
+   # For Foreman users:
+   python integrations/foreman_trigger.py
+   ```
+
+---
+
+## Disclaimer
+**Use at your own risk.** This software is designed to automate load shedding based on public telemetry. The author handles no liability for lost revenue, hardware damage, or failed curtailment events due to network connectivity issues or API changes. Always test with a single unit before deploying to a full facility.
