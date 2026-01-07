@@ -6,7 +6,7 @@
 
 A robust, autonomous grid logic controller for **Bitcoin Mining, HPC (High-Performance Computing), and Flexible Industrial Loads.**
 
-This client interfaces with the **GridWatch API** to monitor real-time power grid conditions (LMP Settlements, Stress Index) across US ISOs (ERCOT, PJM, SPP, NYISO, MISO and ISO-NE). It automatically curtails power during volatility and—crucially—**safely restores power** when conditions normalize.
+This client interfaces with the **GridWatch API** to monitor real-time power grid conditions (LMP Settlements, Stress Index) across US ISOs (ERCOT, PJM, SPP, NYISO, MISO and ISO-NE). It automatically curtails power during volatility and—crucially—**safely restores power** when conditions normalize. [Get API Key Here](https://rapidapi.com/cnorris1316/api/gridwatch-us-telemetry)
 
 ## What's New in v1.1: "Smart Resume"
 * **Auto-Resume (Revenue Recovery):** The script no longer requires human intervention to restart. It detects when pricing returns to safe levels and automatically sends "Resume" commands to your fleet.
