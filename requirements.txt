@@ -1,1 +1,3 @@
 requests
+proxmoxer
+urllib3

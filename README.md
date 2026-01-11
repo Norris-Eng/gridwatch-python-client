@@ -6,7 +6,7 @@
 
 A robust, autonomous grid logic controller for **Bitcoin Mining, HPC (High-Performance Computing), and Flexible Industrial Loads.**
 
-This client interfaces with the **GridWatch API** to monitor real-time power grid conditions (LMP Settlements, Stress Index) across US ISOs (ERCOT, PJM, SPP, NYISO, MISO and ISO-NE). It automatically curtails power during volatility and—crucially—**safely restores power** when conditions normalize.
+This client interfaces with the **GridWatch API** to monitor real-time power grid conditions (LMP Settlements, Stress Index) across US ISOs (ERCOT, PJM, SPP, NYISO, MISO and ISO-NE). It automatically curtails power during volatility and crucially **safely restores power** when conditions normalize. [Get API Key Here](https://rapidapi.com/cnorris1316/api/gridwatch-us-telemetry)
 
 ## What's New in v1.1: "Smart Resume"
 * **Auto-Resume (Revenue Recovery):** The script no longer requires human intervention to restart. It detects when pricing returns to safe levels and automatically sends "Resume" commands to your fleet.
@@ -15,11 +15,12 @@ This client interfaces with the **GridWatch API** to monitor real-time power gri
 
 ---
 
-## Key Features
+## Features
 * **Ultra-Low Latency:** Polls 5-minute settlement intervals with <50ms API response time.
 * **Multi-ISO Support:** Native support for ERCOT, PJM, NYISO, MISO, SPP and ISO-NE.
 * **Agnostic Integration:**
     * **Foreman / HiveOS:** Native handlers for mining fleet management.
+    * **Proxmox (AI/HPC):** Graceful shutdown (ACPI) signals to protect filesystem integrity during power events.
     * **Webhooks / SSH:** Generic triggers for Building Management Systems (BMS) or custom SCADA.
     * **Local Shell Scripts:** Direct GPIO/PDU control for homelabs.
 
@@ -63,7 +64,7 @@ COOLDOWN_MINUTES = 15  # Minutes grid must be NORMAL before resuming
 ### Enterprise Integrations
 If you use a management platform, use the specific script found in the `integrations/` folder.
 
-#### 1. Foreman Users
+#### 1. Foreman Users (Miners)
 Use `integrations/foreman_trigger.py`:
 ```python
 FOREMAN_ENABLED = True
@@ -71,13 +72,25 @@ FOREMAN_API_TOKEN = "YOUR_FOREMAN_TOKEN"
 FOREMAN_MINER_IDS = [123, 456] # List of Miner IDs to control
 ```
 
-#### 2. HiveOS Users
+#### 2. HiveOS Users (Miners)
 Use `integrations/hiveos_trigger.py`:
 ```python
 HIVE_ENABLED = True
 HIVE_TOKEN = "YOUR_HIVE_API_TOKEN"
 HIVE_FARM_ID = 123456
 HIVE_WORKER_IDS = [112233, 445566]
+```
+
+#### 3. Proxmox Users (AI / HPC)
+Use `integrations/proxmox_trigger.py`.
+*Note: This executes a "Graceful Shutdown" (SIGTERM) to prevent data corruption.*
+```python
+PROXMOX_ENABLED = True
+PROXMOX_HOST = "192.168.1.X"      # IP of Proxmox Server
+PROXMOX_USER = "root@pam"
+PROXMOX_PASSWORD = "YOUR_PASSWORD"
+PROXMOX_NODE = "pve"              # Node name
+TARGET_VMS = [100, 101, 102]      # List of VM IDs to manage
 ```
 
 ---
@@ -96,7 +109,7 @@ HIVE_WORKER_IDS = [112233, 445566]
    ```
 
 3. **Configure the script:**
-   Open the script matching your use case (e.g., `gridwatch_kill_switch.py` or `integrations/foreman_trigger.py`) in a text editor and paste your API keys.
+   Open the script matching your use case (e.g., `gridwatch_kill_switch.py` or `integrations/proxmox_trigger.py`) in a text editor and paste your API keys.
 
 4. **Run the client:**
    ```bash
@@ -105,6 +118,9 @@ HIVE_WORKER_IDS = [112233, 445566]
 
    # For Foreman users:
    python integrations/foreman_trigger.py
+
+   # For Proxmox users:
+   python integrations/proxmox_trigger.py
    ```
 
 ---
