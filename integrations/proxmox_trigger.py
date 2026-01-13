@@ -45,7 +45,7 @@ def get_proxmox_connection():
         print(f"   [ERROR] Could not connect to Proxmox: {e}")
         return None
 
-def stop_mining_rigs():
+def curtail_workloads():
     """
     Executes GRACEFUL SHUTDOWN for Proxmox VMs.
     Protects filesystem integrity for AI/HPC workloads.
@@ -69,11 +69,11 @@ def stop_mining_rigs():
             except Exception as e:
                 print(f"      -> VM {vmid} Error: {e}")
 
-def resume_mining_rigs():
+def resume_workloads():
     """
-    Boots up Proxmox VMs.
+    Boots up Proxmox VMs (AI/Compute Nodes).
     """
-    print(f"   [ACTION] INITIATING VM STARTUP...")
+    print(f"   [ACTION] INITIATING COMPUTE STARTUP...")
 
     if PROXMOX_ENABLED:
         proxmox = get_proxmox_connection()
@@ -117,7 +117,7 @@ def check_grid_status():
                 print(f"   Price: ${data['metrics']['price_usd']}/MWh")
 
                 if not SIMULATION_MODE:
-                    stop_mining_rigs()
+                    curtail_workloads()
                     CURRENTLY_CURTAILED = True
                 else:
                     print("   [SIMULATION] Proxmox Shutdown would fire.")
@@ -138,7 +138,7 @@ def check_grid_status():
                 if remaining <= 0:
                     print(f"\n[{timestamp}] 🟢 Cooldown Complete. Resuming Operations.")
                     if not SIMULATION_MODE:
-                        resume_mining_rigs()
+                        resume_workloads()
                         CURRENTLY_CURTAILED = False
                         LAST_NORMAL_TIME = None
                     else:
@@ -148,7 +148,7 @@ def check_grid_status():
                 else:
                     print(f"\n[{timestamp}] 🟡 Waiting for cooldown ({int(remaining)}s)...")
             else:
-                print(f"\n[{timestamp}] 🟢 Grid Normal. VMs Running.")
+                print(f"\n[{timestamp}] 🟢 Grid Normal. Workloads Active.")
 
             print(f"   Price: ${data['metrics']['price_usd']}/MWh")
 
