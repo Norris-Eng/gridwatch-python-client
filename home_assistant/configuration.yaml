@@ -1,0 +1,25 @@
+# configuration.yaml entry for Home Assistant
+sensor:
+  - platform: rest
+    name: "GridWatch Price (ERCOT)"
+    unique_id: gridwatch_ercot_price
+    resource: "https://gridwatch-us-telemetry.p.rapidapi.com/api/curtailment"
+    method: GET
+    headers:
+      # Users: store your key in secrets.yaml
+      X-RapidAPI-Key: !secret gridwatch_api_key
+      X-RapidAPI-Host: "gridwatch-us-telemetry.p.rapidapi.com"
+    params:
+      region: "ERCOT"  # Change to your ISO: PJM, MISO, SPP, NYISO, ISO-NE
+      price_cap: 9999  # Dummy value to ensure we just get data
+      stress_cap: 100  # Dummy value
+    # CONVERSION: GridWatch sends $/MWh. Home users want $/kWh. We divide by 1000.
+    value_template: "{{ (value_json.metrics.price_usd | float / 1000) | round(5) }}"
+    unit_of_measurement: "USD/kWh"
+    scan_interval: 300 # Poll every 5 minutes (matches backend update frequency)
+    # Extract extra grid health data as attributes
+    json_attributes_path: "$.metrics"
+    json_attributes:
+      - utilization_pct
+      - load_mw
+      - data_age_mins
