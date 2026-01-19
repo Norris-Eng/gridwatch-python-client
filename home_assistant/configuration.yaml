@@ -1,25 +1,63 @@
-# configuration.yaml entry for Home Assistant
+# ---------------------------------------------------------
+# 1. THE DATA SENSOR (Raw Feed)
+# ---------------------------------------------------------
 sensor:
   - platform: rest
-    name: "GridWatch Price (ERCOT)"
-    unique_id: gridwatch_ercot_price
+    name: "GridWatch Price"
+    unique_id: "gridwatch_price_raw"
     resource: "https://gridwatch-us-telemetry.p.rapidapi.com/api/curtailment"
     method: GET
     headers:
-      # Users: store your key in secrets.yaml
       X-RapidAPI-Key: !secret gridwatch_api_key
       X-RapidAPI-Host: "gridwatch-us-telemetry.p.rapidapi.com"
     params:
-      region: "ERCOT"  # Change to your ISO: PJM, MISO, SPP, NYISO, ISO-NE
-      price_cap: 9999  # Dummy value to ensure we just get data
-      stress_cap: 100  # Dummy value
-    # CONVERSION: GridWatch sends $/MWh. Home users want $/kWh. We divide by 1000.
-    value_template: "{{ (value_json.metrics.price_usd | float / 1000) | round(5) }}"
+      region: "ERCOT" # Change to: PJM, MISO, SPP, NYISO, ISO-NE
+      price_cap: "9999" # Want data, not a decision
+
+    # FIXED: Handle "Null" prices for Tier 2 regions (Duke/TVA etc.)
+    # If price is None, return 'unavailable' so automations don't fire.
+    value_template: >-
+      {% set p = value_json.metrics.price_usd %}
+      {% if p is not none %}
+        {{ (p | float / 1000) | round(5) }}
+      {% else %}
+        unavailable
+      {% endif %}
+
     unit_of_measurement: "USD/kWh"
-    scan_interval: 300 # Poll every 5 minutes (matches backend update frequency)
-    # Extract extra grid health data as attributes
+    scan_interval: 300 # 5 Minutes
     json_attributes_path: "$.metrics"
     json_attributes:
       - utilization_pct
       - load_mw
       - data_age_mins
+
+# ---------------------------------------------------------
+# 2. THE DECISION ENGINE (Hardware Protection)
+# ---------------------------------------------------------
+binary_sensor:
+  - platform: template
+    sensors:
+      gridwatch_cheap_power:
+        friendly_name: "GridWatch: Cheap Power Available"
+        # Logic: ON if cheap (< $0.05), OFF if expensive (> $0.10)
+        value_template: >-
+          {% set price = states('sensor.gridwatch_price') %}
+          {% if price == 'unavailable' or price == 'unknown' %}
+            {{ false }}
+          {% else %}
+            {% set p = price | float %}
+            {% if p < 0.05 %}
+              {{ true }}
+            {% elif p > 0.10 %}
+              {{ false }}
+            {% else %}
+              {{ states('binary_sensor.gridwatch_cheap_power') }}
+            {% endif %}
+          {% endif %}
+
+        # SAFETY DELAY: Prevent "Short Cycling"
+        # Must be cheap for 5 mins before turning ON
+        delay_on: "00:05:00"
+        # Must be expensive for 5 mins before turning OFF
+        delay_off: "00:05:00"
