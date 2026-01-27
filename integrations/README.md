@@ -1,15 +1,15 @@
-# GridWatch Python Client (v1.1)
+# GridWatch Controller: Proxmox & Integrations
 
 ![Version](https://img.shields.io/badge/version-1.1-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.9+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-A robust, autonomous grid logic controller for **Bitcoin Mining, HPC (High-Performance Computing), and Flexible Industrial Loads.**
+A robust, autonomous grid logic controller for **Homelabs (Proxmox), Bitcoin Mining, and High-Performance Computing.**
 
 This client interfaces with the **GridWatch API** to monitor real-time power grid conditions (LMP Settlements, Stress Index) across US ISOs (ERCOT, PJM, SPP, NYISO, MISO and ISO-NE). It automatically curtails power during volatility and crucially **safely restores power** when conditions normalize. [Get API Key Here](https://rapidapi.com/cnorris1316/api/gridwatch-us-telemetry)
 
 ## What's New in v1.1: "Smart Resume"
-* **Auto-Resume (Revenue Recovery):** The script no longer requires human intervention to restart. It detects when pricing returns to safe levels and automatically sends "Resume" commands to your fleet.
+* **Auto-Resume (Smart Recovery):** The script no longer requires human intervention to restart. It detects when pricing returns to safe levels and automatically sends "Resume" commands to your fleet.
 * **15-Minute Hardware Debounce:** To protect Power Supply Units (PSUs) and sensitive compute hardware from rapid cycling (flapping), the grid must remain in a "Normal" state for a defined cooldown period before a restart is authorized.
 * **State Awareness:** The client tracks local state to prevent API spam. It will not send repeated "Stop" commands to a facility that is already curtailed.
 

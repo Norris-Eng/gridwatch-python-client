@@ -35,8 +35,6 @@ python integrations/proxmox_trigger.py
 
 ---
 
-## 3. Industrial Mining (Legacy)
-**Best for:** Bitcoin Mining Farms (Foreman / HiveOS).
-We provide robust Python controllers for fleet management.
-
-**[Click Here to view Mining Integrations](./legacy_mining)**
+## 3. Advanced Integrations (Foreman, HiveOS)
+For detailed configuration documentation on the Python Client, including Logic Flow and specific setup guides for Proxmox and Mining:
+**[View Integrations Documentation](./integrations/README.md)**
