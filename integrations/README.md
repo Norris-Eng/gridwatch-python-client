@@ -6,7 +6,7 @@
 
 A robust, autonomous grid logic controller for **Homelabs (Proxmox), Bitcoin Mining, and High-Performance Computing.**
 
-This client interfaces with the **GridWatch API** to monitor real-time power grid conditions (LMP Settlements, Stress Index) across US ISOs (ERCOT, PJM, SPP, NYISO, MISO and ISO-NE). It automatically curtails power during volatility and crucially **safely restores power** when conditions normalize. [Get API Key Here](https://rapidapi.com/cnorris1316/api/gridwatch-us-telemetry)
+This client interfaces with the **GridWatch API** to monitor real-time power grid conditions (LMP Settlements, Stress Index) across US ISOs (ERCOT, PJM, SPP, NYISO, MISO, CAISO and ISO-NE). It automatically curtails power during volatility and crucially **safely restores power** when conditions normalize. [Get API Key Here](https://rapidapi.com/cnorris1316/api/gridwatch-us-telemetry)
 
 ## What's New in v1.1: "Smart Resume"
 * **Auto-Resume (Smart Recovery):** The script no longer requires human intervention to restart. It detects when pricing returns to safe levels and automatically sends "Resume" commands to your fleet.
@@ -53,7 +53,7 @@ Open `gridwatch_kill_switch.py` and edit the **Configuration** section:
 ```python
 # --- CONFIGURATION ---
 RAPIDAPI_KEY = "YOUR_RAPIDAPI_KEY_HERE"  # Get this from RapidAPI
-REGION = "ERCOT"       # Options: PJM, MISO, ERCOT, SPP, NYISO, ISO-NE
+REGION = "ERCOT"       # Options: PJM, MISO, ERCOT, SPP, NYISO, ISO-NE, CAISO
 
 # Safety Thresholds
 PRICE_CAP = 200        # Shut down if price > $200/MWh
