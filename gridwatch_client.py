@@ -7,7 +7,7 @@ import os
 # Get your key from: https://rapidapi.com/cnorris1316/api/gridwatch-us-telemetry
 RAPIDAPI_KEY = "YOUR_RAPIDAPI_KEY_HERE"
 
-# Region Options: PJM, MISO, ERCOT, SPP, NYISO, ISO-NE
+# Region Options: PJM, MISO, ERCOT, SPP, NYISO, ISONE, CAISO
 REGION = "ERCOT"
 
 # Safety Thresholds

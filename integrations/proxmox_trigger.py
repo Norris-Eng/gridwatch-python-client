@@ -10,7 +10,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # --- CONFIGURATION ---
 # Get your key from: https://rapidapi.com/cnorris1316/api/gridwatch-us-telemetry
 RAPIDAPI_KEY = "YOUR_RAPIDAPI_KEY_HERE"
-REGION = "ERCOT"
+REGION = "ERCOT" # Region Options: PJM, MISO, ERCOT, SPP, NYISO, ISONE, CAISO
 
 # Safety Thresholds
 PRICE_CAP = 200        # Shut down if price > $200/MWh

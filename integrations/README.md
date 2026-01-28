@@ -6,7 +6,7 @@
 
 A robust, autonomous grid logic controller for **Homelabs (Proxmox), Bitcoin Mining, and High-Performance Computing.**
 
-This client interfaces with the **GridWatch API** to monitor real-time power grid conditions (LMP Settlements, Stress Index) across US ISOs (ERCOT, PJM, SPP, NYISO, MISO, CAISO and ISO-NE). It automatically curtails power during volatility and crucially **safely restores power** when conditions normalize. [Get API Key Here](https://rapidapi.com/cnorris1316/api/gridwatch-us-telemetry)
+This client interfaces with the **GridWatch API** to monitor real-time power grid conditions (LMP Settlements, Stress Index) across US ISOs (ERCOT, PJM, SPP, NYISO, MISO, CAISO and ISONE). It automatically curtails power during volatility and crucially **safely restores power** when conditions normalize. [Get API Key Here](https://rapidapi.com/cnorris1316/api/gridwatch-us-telemetry)
 
 ## What's New in v1.1: "Smart Resume"
 * **Auto-Resume (Smart Recovery):** The script no longer requires human intervention to restart. It detects when pricing returns to safe levels and automatically sends "Resume" commands to your fleet.
@@ -48,12 +48,12 @@ The client operates on a continuous loop (5-minute polling interval):
 This client is designed as a **standalone script** for maximum reliability. You configure it by editing the variables at the top of the `.py` file directly.
 
 ### Standard Setup
-Open `gridwatch_kill_switch.py` and edit the **Configuration** section:
+Open `gridwatch_client.py` and edit the **Configuration** section:
 
 ```python
 # --- CONFIGURATION ---
 RAPIDAPI_KEY = "YOUR_RAPIDAPI_KEY_HERE"  # Get this from RapidAPI
-REGION = "ERCOT"       # Options: PJM, MISO, ERCOT, SPP, NYISO, ISO-NE, CAISO
+REGION = "ERCOT"       # Options: PJM, MISO, ERCOT, SPP, NYISO, ISONE, CAISO
 
 # Safety Thresholds
 PRICE_CAP = 200        # Shut down if price > $200/MWh
@@ -99,8 +99,8 @@ TARGET_VMS = [100, 101, 102]      # List of VM IDs to manage
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/Norris-Eng/gridwatch-kill-switch.git](https://github.com/Norris-Eng/gridwatch-kill-switch.git)
-   cd gridwatch-kill-switch
+   git clone [https://github.com/Norris-Eng/gridwatch-home-assistant](https://github.com/Norris-Eng/gridwatch-home-assistant)
+   cd gridwatch-home-assistant
    ```
 
 2. **Install dependencies:**
@@ -109,12 +109,12 @@ TARGET_VMS = [100, 101, 102]      # List of VM IDs to manage
    ```
 
 3. **Configure the script:**
-   Open the script matching your use case (e.g., `gridwatch_kill_switch.py` or `integrations/proxmox_trigger.py`) in a text editor and paste your API keys.
+   Open the script matching your use case (e.g., `gridwatch_client.py` or `integrations/proxmox_trigger.py`) in a text editor and paste your API keys.
 
 4. **Run the client:**
    ```bash
    # For generic usage:
-   python gridwatch_kill_switch.py
+   python gridwatch_client.py
 
    # For Foreman users:
    python integrations/foreman_trigger.py

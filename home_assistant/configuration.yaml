@@ -11,7 +11,7 @@ sensor:
       X-RapidAPI-Key: !secret gridwatch_api_key
       X-RapidAPI-Host: "gridwatch-us-telemetry.p.rapidapi.com"
     params:
-      region: "ERCOT" # Change to: PJM, MISO, SPP, NYISO, ISO-NE
+      region: "ERCOT" # Change to: PJM, MISO, SPP, NYISO, ISONE, CAISO
       price_cap: "9999" # Want data, not a decision
 
     # FIXED: Handle "Null" prices for Tier 2 regions (Duke/TVA etc.)
